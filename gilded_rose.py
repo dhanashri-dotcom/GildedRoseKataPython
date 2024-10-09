@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+from abc import ABC, abstractmethod
 
 class Item:
     """ DO NOT CHANGE THIS CLASS!!!"""
@@ -10,40 +9,86 @@ class Item:
 
     def __repr__(self):
         return "%s, %s, %s" % (self.name, self.sell_in, self.quality)
+    
+    # def __eq__(self, other):
+    #     if isinstance(other, Item):
+    #         return self.name == other.name and self.sell_in == other.sell_in and self.quality == other.quality
+    #     return False
+
+class UpdateStrategy(ABC):
+    """Abstract base class representing a strategy for updating items."""
+    
+    @abstractmethod
+    def update(self, item: Item):
+        pass
 
 
-class GildedRose(object):
+class NormalItemStrategy(UpdateStrategy):
+    def update(self, item: Item):
+        if item.quality > 0:
+            item.quality -= 1
+        item.sell_in -= 1
+        if item.sell_in < 0 and item.quality > 0:
+            item.quality -= 1
 
+class AgedBrieStrategy(UpdateStrategy):
+    def update(self, item: Item):
+        if item.quality < 50:
+            item.quality += 1
+        item.sell_in -= 1
+        if item.sell_in < 0 and item.quality < 50:
+            item.quality += 1
+
+
+class SulfurasStrategy(UpdateStrategy):
+    def update(self, item: Item):
+        # Sulfuras does not change in quality or sell_in
+        pass
+
+
+class BackstagePassesStrategy(UpdateStrategy):
+    def update(self, item: Item):
+        if item.sell_in > 10:
+            item.quality += 1
+        elif 5 < item.sell_in <= 10:
+            item.quality += 2
+        elif 0 < item.sell_in <= 5:
+            item.quality += 3
+        else:
+            item.quality = 0
+
+        if item.quality > 50:
+            item.quality = 50
+
+        item.sell_in -= 1
+
+
+class ConjuredItemStrategy(UpdateStrategy):
+    def update(self, item: Item):
+        if item.quality > 0:
+            item.quality -= 2
+        item.sell_in -= 1
+        if item.sell_in < 0 and item.quality > 0:
+            item.quality -= 2
+        if item.quality < 0:
+            item.quality = 0
+
+
+class GildedRose:
     def __init__(self, items: list[Item]):
         # DO NOT CHANGE THIS ATTRIBUTE!!!
         self.items = items
+        # Mapping item names to their corresponding strategies
+        self.strategies = {
+            "Aged Brie": AgedBrieStrategy(),
+            "Sulfuras, Hand of Ragnaros": SulfurasStrategy(),
+            "Backstage passes to a TAFKAL80ETC concert": BackstagePassesStrategy(),
+            "Conjured Mana Cake": ConjuredItemStrategy(),
+        }
 
     def update_quality(self):
         for item in self.items:
-            if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert":
-                if item.quality > 0:
-                    if item.name != "Sulfuras, Hand of Ragnaros":
-                        item.quality = item.quality - 1
-            else:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
-                    if item.name == "Backstage passes to a TAFKAL80ETC concert":
-                        if item.sell_in < 11:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-                        if item.sell_in < 6:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-            if item.name != "Sulfuras, Hand of Ragnaros":
-                item.sell_in = item.sell_in - 1
-            if item.sell_in < 0:
-                if item.name != "Aged Brie":
-                    if item.name != "Backstage passes to a TAFKAL80ETC concert":
-                        if item.quality > 0:
-                            if item.name != "Sulfuras, Hand of Ragnaros":
-                                item.quality = item.quality - 1
-                    else:
-                        item.quality = item.quality - item.quality
-                else:
-                    if item.quality < 50:
-                        item.quality = item.quality + 1
+            # Select the appropriate strategy based on the item name
+            strategy = self.strategies.get(item.name, NormalItemStrategy())
+            # Delegate the update logic to the selected strategy
+            strategy.update(item)
