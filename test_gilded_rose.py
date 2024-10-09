@@ -53,10 +53,7 @@ class GildedRoseTest(unittest.TestCase):
         
         gr.update_quality()
 
-        #assert gr.items == [Item(brie, 1, 1), Item(brie, 0, 49), Item(brie, 3, 49)]
-        #Commented this assertion as it requires me to add equals function to the Item class and Item Class specifically mentions not to change anything
-        #Instead we rely on more granualr assetions as seen below. 
-        #If we would not want to comment the object assertion above, we can uncomment the equals function in Item class and the test would pass for that case as well.
+        assert gr.items == [Item(brie, 1, 1), Item(brie, 0, 49), Item(brie, 3, 49)]
         self.assertEqual(gr.items[0].name, brie)
         self.assertEqual(gr.items[0].sell_in, 1)
         self.assertEqual(gr.items[0].quality, 1)

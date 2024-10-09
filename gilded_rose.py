@@ -10,10 +10,10 @@ class Item:
     def __repr__(self):
         return "%s, %s, %s" % (self.name, self.sell_in, self.quality)
     
-    # def __eq__(self, other):
-    #     if isinstance(other, Item):
-    #         return self.name == other.name and self.sell_in == other.sell_in and self.quality == other.quality
-    #     return False
+    def __eq__(self, other):
+        if isinstance(other, Item):
+            return self.name == other.name and self.sell_in == other.sell_in and self.quality == other.quality
+        return False
 
 class UpdateStrategy(ABC):
     """Abstract base class representing a strategy for updating items."""
